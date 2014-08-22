@@ -1,4 +1,4 @@
-package com.victop.iteration;
+package com.chenzr.iteration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,7 +12,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.victop.iteration.bean.TableField;
+import com.chenzr.iteration.*;
+import com.chenzr.iteration.bean.TableField;
 
 public class TestLaunchOperation {
 	

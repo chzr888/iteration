@@ -1,15 +1,10 @@
-package com.victop.iteration;
+package com.chenzr.iteration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.Map;
 
-
-import com.greenpineyu.fel.FelEngineImpl;
-import com.greenpineyu.fel.context.ArrayCtxImpl;
-import com.greenpineyu.fel.context.FelContext;
-import com.victop.iteration.bean.Project;
 
 public class Tests {
 
@@ -73,17 +68,17 @@ public class Tests {
 			
 			long time = System.currentTimeMillis();
 
-			FelEngineImpl engine = new FelEngineImpl();
+//			FelEngineImpl engine = new FelEngineImpl();
 			time = System.currentTimeMillis();
-			FelContext ctx = new ArrayCtxImpl();
-			ctx.set("数量", 5);
-			ctx.set("数量1", 2);
+//			FelContext ctx = new ArrayCtxImpl();
+//			ctx.set("数量", 5);
+//			ctx.set("数量1", 2);
 			System.out.println(System.currentTimeMillis() - time);
 			time = System.currentTimeMillis();
 
-			Object object = engine.eval("$('Math').random() * 10000", ctx);
-			object = engine.eval("数量  == 数量1", ctx);
-			System.out.println(object);
+//			Object object = engine.eval("$('Math').random() * 10000", ctx);
+//			object = engine.eval("数量  == 数量1", ctx);
+//			System.out.println(object);
 			System.out.println(System.currentTimeMillis() - time);
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -246,22 +246,22 @@ public class StepOperation {
 							
 							//更新条件
 							String updateCriteria = stepSetOperation.getUpdateCriteria();
-							FelEngineImpl engine = new FelEngineImpl();
-							FelContext ctx = engine.getContext();
-							for (Entry<String, Object> m: _row.entrySet()) {
-								ctx.set(m.getKey(), m.getValue());
-							}
-							Object object = engine.eval(updateCriteria, ctx);
-							if(object instanceof Boolean){
-								boolean isUpdate = (Boolean) object;
-								if(isUpdate){
+//							FelEngineImpl engine = new FelEngineImpl();
+//							FelContext ctx = engine.getContext();
+//							for (Entry<String, Object> m: _row.entrySet()) {
+//								ctx.set(m.getKey(), m.getValue());
+//							}
+//							Object object = engine.eval(updateCriteria, ctx);
+//							if(object instanceof Boolean){
+//								boolean isUpdate = (Boolean) object;
+//								if(isUpdate){
 									Operation impl = new UnitOperationImpl();
 									// 修改后的数据
 									Map<String, Object> afterRowMap = impl
 											.operation(_row, stepSetOperation);
 									_row.put(columnName, afterRowMap.get(columnName));
-								}
-							}
+//								}
+//							}
 							
 //							// 单元格运算
 //							upRowNum += unitUpdate(stepSetOperation, afterRowMap,

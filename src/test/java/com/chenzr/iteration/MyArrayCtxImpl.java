@@ -1,8 +1,7 @@
-package com.victop.iteration;
+package com.chenzr.iteration;
 
-import com.greenpineyu.fel.context.ArrayCtxImpl;
 
-public class MyArrayCtxImpl extends ArrayCtxImpl {
+public class MyArrayCtxImpl  {
 
 	public void clean(){
 		
