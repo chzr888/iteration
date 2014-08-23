@@ -1,6 +1,5 @@
 package com.chenzr.iteration;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import com.chenzr.iteration.bean.StepSetOperation;
 import com.chenzr.iteration.bean.TableField;
 import com.chenzr.iteration.dialect.Dialect;
-import com.chenzr.iteration.impl.RowOperationImpl;
 import com.chenzr.iteration.impl.UnitOperationImpl;
 import com.chenzr.iteration.utils.SqlUtil;
-
-
+import com.greenpineyu.fel.FelEngine;
+import com.greenpineyu.fel.context.ArrayCtxImpl;
+import com.greenpineyu.fel.context.FelContext;
 
 public class StepOperation {
 
@@ -52,51 +51,56 @@ public class StepOperation {
 	 */
 	public String execute(String tableName, String query,
 			List<TableField> fields, List<StepSetOperation> operations,
-			Connection memConn, Connection bizConn, boolean isMemoryCompute) throws Exception {
+			Connection memConn, Connection bizConn, boolean isMemoryCompute)
+			throws Exception {
 		String msg = "";
 		Connection memoryConn = null;
 		long startTime = 0;
 		try {
 			memoryConn = memConn;
-			if(isMemoryCompute){
+			if (isMemoryCompute) {
 				if (null == memoryConn || memoryConn.isClosed()) {
 					memoryConn = util.getMemoryConnection();
 				}
-				
+
 				// 实例化内存表
 				startTime = System.currentTimeMillis();
 				System.out.println("开始创造内存表!");
 				createMemoryTable(tableName, fields, memoryConn);
-				System.out.println("内存表创造完成! 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
-				
+				System.out.println("内存表创造完成! 消耗时间："
+						+ (System.currentTimeMillis() - startTime + " 毫秒"));
+
 				// 导入数据
 				startTime = System.currentTimeMillis();
 				System.out.println("开始导入数据到内存数据库!");
 				importData(tableName, query, fields, bizConn, memoryConn);
-				System.out.println("导入数据完成! 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
+				System.out.println("导入数据完成! 消耗时间："
+						+ (System.currentTimeMillis() - startTime + " 毫秒"));
 			}
 			// 计算
 			startTime = System.currentTimeMillis();
 			System.out.println("开始计算!");
-			if(isMemoryCompute){
+			if (isMemoryCompute) {
 				compute(tableName, fields, operations, memoryConn);
-			}else{
+			} else {
 				compute(tableName, fields, operations, bizConn);
 			}
-			System.out.println("计算完成! 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
-			
+			System.out.println("计算完成! 消耗时间："
+					+ (System.currentTimeMillis() - startTime + " 毫秒"));
+
 			// 批量更新数据集数据库
 			startTime = System.currentTimeMillis();
 			System.out.println("开始批量更新数据集数据!");
-			if(isMemoryCompute){
+			if (isMemoryCompute) {
 				batchUpdateData(tableName, fields, bizConn, memoryConn);
-			}			
-			System.out.println("批量更新数据集数据完成! 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
-			
+			}
+			System.out.println("批量更新数据集数据完成! 消耗时间："
+					+ (System.currentTimeMillis() - startTime + " 毫秒"));
+
 		} catch (Exception e) {
 			logger.error("{}", e);
 			throw e;
-		}finally{
+		} finally {
 			util.dropMemoryTable(tableName, memConn);
 		}
 		return msg;
@@ -144,11 +148,16 @@ public class StepOperation {
 					System.out.println("开始行运算");
 					for (int j = 0; j < totalPage; j++) {
 						startTime = System.currentTimeMillis();
-						String sql = dialect.getLimitString(query,
-								j * chunkSize, chunkSize);
-						int count = rowIteration(listSSO, fieldsMap, tableName, sql,
-								memConn);
-						System.out.println("运算行数："+count +" 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
+						String sql = dialect.getLimitString(query, j
+								* chunkSize, chunkSize);
+						int count = rowIteration(listSSO, fieldsMap, tableName,
+								sql, memConn);
+						System.out
+								.println("运算行数："
+										+ count
+										+ " 消耗时间："
+										+ (System.currentTimeMillis()
+												- startTime + " 毫秒"));
 					}
 					System.out.println("行运算完成");
 				}
@@ -157,7 +166,8 @@ public class StepOperation {
 					System.out.println("开始列运算");
 					startTime = System.currentTimeMillis();
 					colIteration(listSSO, fieldsMap, tableName, memConn);
-					System.out.println("列运算完成! 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
+					System.out.println("列运算完成! 消耗时间："
+							+ (System.currentTimeMillis() - startTime + " 毫秒"));
 				}
 			}
 
@@ -190,92 +200,69 @@ public class StepOperation {
 		try {
 			// 修改后的数据
 			Map<String, Map<String, Object>> afterRowListMap = new LinkedHashMap<String, Map<String, Object>>();
-			
-			// 判断是有更新条件 如果有，一个一个单元更新，如果没有一行一行更新
-			boolean isUc = getCategorySetIsUpdateCriteria(categorySet);
-			//没有条件
-			if (!isUc) {
-
-				rs = util.getResultSetBySql(memConn, sql);
+			rs = util.getResultSetBySql(memConn, sql);
+			try {
+				//long time = 0;
+				FelEngine engine = IterationEngine.getInstance();
+				UnitOperation unitOperation = new UnitOperationImpl();
+				// 更新id
+				String id = "";
 				while (rs.next()) {
+					//time = System.currentTimeMillis();
 					// 当前行数据
 					Map<String, Object> _row = new HashMap<String, Object>();
+					id = rs.getString("id");
+
 					for (Entry<String, String> stepOperation : fields
 							.entrySet()) {
 						String key = stepOperation.getValue();
 						String value = rs.getString(stepOperation.getKey());
 						_row.put(key, value);
 					}
-					// 更新条件
-					String key = rs.getString("id");
-					Operation impl = new RowOperationImpl();
-					Map<String, Object> rowMap = impl.operation(_row,
-							categorySet);
-					afterRowListMap.put(key, rowMap);
+
+					// 迭代
+					for (int i = 0; i < categorySet.size(); i++) {
+
+						StepSetOperation stepSetOperation = categorySet.get(i);
+						String columnName = stepSetOperation.getColumnName();
+
+						// 更新条件
+						String updateCriteria = stepSetOperation
+								.getUpdateCriteria();
+						boolean isUpdate = true;
+						if (getCategorySetIsUpdateCriteria(stepSetOperation)) {
+							isUpdate = false;
+							FelContext ctx = new ArrayCtxImpl();
+							for (Entry<String, Object> m : _row.entrySet()) {
+								ctx.set(m.getKey(), m.getValue());
+							}
+							Object object = unitOperation.operation(engine,
+									updateCriteria, ctx);
+							if (object instanceof Boolean) {
+								isUpdate = (Boolean) object;
+							}
+						}
+						if (isUpdate) {
+							// 修改后的数据
+							FelContext ctx = new ArrayCtxImpl();
+							for (Entry<String, Object> m : _row.entrySet()) {
+								ctx.set(m.getKey(), m.getValue());
+							}
+							String formula = stepSetOperation.getFormula();
+							Object value = unitOperation.operation(engine,
+									formula, ctx);
+							_row.put(columnName, value);
+						}
+					}
+					afterRowListMap.put(id, _row);
+					//System.out.println(System.currentTimeMillis() - time);
 				}
 				util.close(rs);
-				
-			} else {
-				//有条件
-				rs = util.getResultSetBySql(memConn, sql);
-
-				try {
-					long time = 0;
-					// 更新id
-					String id = "";
-					while (rs.next()) {
-						time= System.currentTimeMillis();
-
-						// 当前行数据
-						Map<String, Object> _row = new HashMap<String, Object>();
-						id = rs.getString("id");
-						
-						for (Entry<String, String> stepOperation : fields
-								.entrySet()) {
-							String key = stepOperation.getValue();
-							String value = rs.getString(stepOperation
-									.getKey());
-							_row.put(key, value);
-						}
-						
-						for (int i = 0; i < categorySet.size(); i++) {
-
-							StepSetOperation stepSetOperation = categorySet
-									.get(i);
-							String columnName = stepSetOperation.getColumnName();
-							
-							//更新条件
-							String updateCriteria = stepSetOperation.getUpdateCriteria();
-//							FelEngineImpl engine = new FelEngineImpl();
-//							FelContext ctx = engine.getContext();
-//							for (Entry<String, Object> m: _row.entrySet()) {
-//								ctx.set(m.getKey(), m.getValue());
-//							}
-//							Object object = engine.eval(updateCriteria, ctx);
-//							if(object instanceof Boolean){
-//								boolean isUpdate = (Boolean) object;
-//								if(isUpdate){
-									Operation impl = new UnitOperationImpl();
-									// 修改后的数据
-									Map<String, Object> afterRowMap = impl
-											.operation(_row, stepSetOperation);
-									_row.put(columnName, afterRowMap.get(columnName));
-//								}
-//							}
-							
-//							// 单元格运算
-//							upRowNum += unitUpdate(stepSetOperation, afterRowMap,
-//									beforeRowMap, tableName, id, memConn);
-						}
-						afterRowListMap.put(id, _row);
-						System.out.println(System.currentTimeMillis() - time);
-					}
-					util.close(rs);
-				} catch (Exception e) {
-					throw e;
-				}
+			} catch (Exception e) {
+				throw e;
 			}
-			upRowNum = batchRowUpdate(categorySet, afterRowListMap, tableName, memConn);
+			upRowNum = batchRowUpdate(categorySet, afterRowListMap, tableName,
+					memConn);
 		} catch (Exception e) {
 			logger.error("{}", e);
 			throw e;
@@ -292,15 +279,13 @@ public class StepOperation {
 	 *            栏目设置
 	 * @return true?false
 	 */
-	private boolean getCategorySetIsUpdateCriteria(
-			List<StepSetOperation> categorySet) {
-		for (int i = 0; i < categorySet.size(); i++) {
-			StepSetOperation bean = categorySet.get(i);
-			if (null != bean) {
-				if (null != bean.getUpdateCriteria()
-						&& !"".equals(bean.getUpdateCriteria())) {
-					return true;
-				}
+	private boolean getCategorySetIsUpdateCriteria(StepSetOperation categorySet) {
+		if (null == categorySet || "".equals(categorySet)) {
+			return false;
+		}
+		if (null != categorySet.getUpdateCriteria()) {
+			if(!"".equalsIgnoreCase(categorySet.getUpdateCriteria().trim())){
+				return true;
 			}
 		}
 		return false;
@@ -353,7 +338,7 @@ public class StepOperation {
 				Map<String, Object> rowMap = entry.getValue();
 				rowUpdate(categorySet, rowMap, rowid, pst);
 			}
-			int [] batch= pst.executeBatch();
+			int[] batch = pst.executeBatch();
 			memConn.commit();
 			batchSize = batch.length;
 		} catch (Exception e) {
@@ -396,108 +381,108 @@ public class StepOperation {
 		}
 	}
 
-	/**
-	 * 单个单元格更新
-	 * 
-	 * @param categorySet
-	 *            更新栏目
-	 * @param afterRowMap
-	 *            修改后数据
-	 * @param beforeRowMap
-	 *            修改前数据
-	 * @param tableName
-	 *            表名
-	 * @param id
-	 *            更新ID
-	 * @param bizConn
-	 *            连接
-	 * @throws Exception
-	 */
-	private int unitUpdate(StepSetOperation stepSetOperation,
-			Map<String, Object> afterRowMap, Map<String, Object> beforeRowMap,
-			String tableName, String id, Connection memConn) throws Exception {
-		PreparedStatement pst = null;
-		int count = 0;
-		try {
-			memConn.setAutoCommit(false);
-			// 修改后数据
-			Map<String, Object> afterRow = afterRowMap;
-			// 更新前数据
-			Map<String, Object> beforeRow = beforeRowMap;
-			StepSetOperation bean = stepSetOperation;
-			String keyName = bean.getColumnName();
-			// 更新字段
-			String key = bean.getColumnId();
-			// 更新条件
-			String whereStr = bean.getUpdateCriteria();
-
-			StringBuffer upDateStr = new StringBuffer();
-			upDateStr.append("UPDATE ");
-			upDateStr.append(tableName);
-			upDateStr.append(" SET ");
-			upDateStr.append(key);
-			upDateStr.append("=? ");
-			upDateStr.append(" WHERE ");
-			upDateStr.append(" id=? ");
-			if (null != whereStr && !"".equals(whereStr)) {
-				for (Entry<String, Object> data : beforeRow.entrySet()) {
-					String cnName = data.getKey();
-					Object object = data.getValue();
-					if (null != object) {
-						String value = "";
-						boolean isReplace = false;
-						if (object instanceof String) {
-							isReplace = true;
-							value = (String) object;
-						}
-						if (object instanceof Integer) {
-							isReplace = true;
-							int str = (Integer) object;
-							value = str + "";
-						}
-						if (object instanceof Double) {
-							isReplace = true;
-							double str = (Double) object;
-							value = str + "";
-						}
-						if (object instanceof BigDecimal) {
-							isReplace = true;
-							BigDecimal str = (BigDecimal) object;
-							value = str.toString() + "";
-						}
-						if (object instanceof Float) {
-							isReplace = true;
-							Float str = (Float) object;
-							value = str.toString() + "";
-						}
-						if (isReplace) {
-							whereStr = whereStr.replaceAll(cnName, value);
-						}
-					}
-				}
-				if(null != whereStr && !"".equals(whereStr)){
-					upDateStr.append(" AND ");
-					upDateStr.append(whereStr);
-				}
-			}
-			String upSql = upDateStr.toString();
-			pst = memConn
-					.prepareStatement(upSql, ResultSet.TYPE_SCROLL_SENSITIVE,
-							ResultSet.CONCUR_UPDATABLE);
-			pst.setObject(1, afterRow.get(keyName));
-			pst.setString(2, id);
-			count = pst.executeUpdate();
-			util.close(pst);
-			memConn.commit();
-		} catch (Exception e) {
-			logger.error("更新失败,回滚");
-			memConn.rollback();
-			throw e;
-		} finally {
-			util.close(pst);
-		}
-		return count;
-	}
+//	/**
+//	 * 单个单元格更新
+//	 * 
+//	 * @param categorySet
+//	 *            更新栏目
+//	 * @param afterRowMap
+//	 *            修改后数据
+//	 * @param beforeRowMap
+//	 *            修改前数据
+//	 * @param tableName
+//	 *            表名
+//	 * @param id
+//	 *            更新ID
+//	 * @param bizConn
+//	 *            连接
+//	 * @throws Exception
+//	 */
+//	private int unitUpdate(StepSetOperation stepSetOperation,
+//			Map<String, Object> afterRowMap, Map<String, Object> beforeRowMap,
+//			String tableName, String id, Connection memConn) throws Exception {
+//		PreparedStatement pst = null;
+//		int count = 0;
+//		try {
+//			memConn.setAutoCommit(false);
+//			// 修改后数据
+//			Map<String, Object> afterRow = afterRowMap;
+//			// 更新前数据
+//			Map<String, Object> beforeRow = beforeRowMap;
+//			StepSetOperation bean = stepSetOperation;
+//			String keyName = bean.getColumnName();
+//			// 更新字段
+//			String key = bean.getColumnId();
+//			// 更新条件
+//			String whereStr = bean.getUpdateCriteria();
+//
+//			StringBuffer upDateStr = new StringBuffer();
+//			upDateStr.append("UPDATE ");
+//			upDateStr.append(tableName);
+//			upDateStr.append(" SET ");
+//			upDateStr.append(key);
+//			upDateStr.append("=? ");
+//			upDateStr.append(" WHERE ");
+//			upDateStr.append(" id=? ");
+//			if (null != whereStr && !"".equals(whereStr)) {
+//				for (Entry<String, Object> data : beforeRow.entrySet()) {
+//					String cnName = data.getKey();
+//					Object object = data.getValue();
+//					if (null != object) {
+//						String value = "";
+//						boolean isReplace = false;
+//						if (object instanceof String) {
+//							isReplace = true;
+//							value = (String) object;
+//						}
+//						if (object instanceof Integer) {
+//							isReplace = true;
+//							int str = (Integer) object;
+//							value = str + "";
+//						}
+//						if (object instanceof Double) {
+//							isReplace = true;
+//							double str = (Double) object;
+//							value = str + "";
+//						}
+//						if (object instanceof BigDecimal) {
+//							isReplace = true;
+//							BigDecimal str = (BigDecimal) object;
+//							value = str.toString() + "";
+//						}
+//						if (object instanceof Float) {
+//							isReplace = true;
+//							Float str = (Float) object;
+//							value = str.toString() + "";
+//						}
+//						if (isReplace) {
+//							whereStr = whereStr.replaceAll(cnName, value);
+//						}
+//					}
+//				}
+//				if (null != whereStr && !"".equals(whereStr)) {
+//					upDateStr.append(" AND ");
+//					upDateStr.append(whereStr);
+//				}
+//			}
+//			String upSql = upDateStr.toString();
+//			pst = memConn
+//					.prepareStatement(upSql, ResultSet.TYPE_SCROLL_SENSITIVE,
+//							ResultSet.CONCUR_UPDATABLE);
+//			pst.setObject(1, afterRow.get(keyName));
+//			pst.setString(2, id);
+//			count = pst.executeUpdate();
+//			util.close(pst);
+//			memConn.commit();
+//		} catch (Exception e) {
+//			logger.error("更新失败,回滚");
+//			memConn.rollback();
+//			throw e;
+//		} finally {
+//			util.close(pst);
+//		}
+//		return count;
+//	}
 
 	/**
 	 * 列迭代
@@ -523,7 +508,7 @@ public class StepOperation {
 				StepSetOperation bean = categorySet.get(i);
 				// 字段
 				String columnid = bean.getColumnId();
-				//名称
+				// 名称
 				String columnName = bean.getColumnName();
 				// 公式
 				String formula = bean.getFormula();
@@ -559,7 +544,9 @@ public class StepOperation {
 				int count = pst.executeUpdate();
 				pst.close();
 				memConn.commit();
-				System.out.println("运算【"+columnName+"】列，影响行数："+count +" 消耗时间："+(System.currentTimeMillis()-startTime+" 毫秒"));
+				System.out.println("运算【" + columnName + "】列，影响行数：" + count
+						+ " 消耗时间："
+						+ (System.currentTimeMillis() - startTime + " 毫秒"));
 			}
 		} catch (Exception e) {
 			logger.error("更新失败,回滚");
@@ -580,8 +567,7 @@ public class StepOperation {
 	 * @throws Exception
 	 */
 	public void createMemoryTable(String tableName,
-			List<TableField> fieldsList,Connection memConn)
-			throws Exception {
+			List<TableField> fieldsList, Connection memConn) throws Exception {
 		try {
 			Dialect dialect = Dialect.getInstance(memConn);
 			StringBuffer keyStr = new StringBuffer();
@@ -609,9 +595,9 @@ public class StepOperation {
 					keyStr.append(field.getFieldName());
 				}
 			}
-			String sqlString = "CREATE TABLE "
-					+ tableName + " " + "( " + sb.toString() + ",PRIMARY KEY ("
-					+ keyStr.toString() + "))";
+			String sqlString = "CREATE TABLE " + tableName + " " + "( "
+					+ sb.toString() + ",PRIMARY KEY (" + keyStr.toString()
+					+ "))";
 			util.upDateBySql(sqlString, memConn);
 		} catch (Exception e) {
 			throw e;
@@ -691,11 +677,11 @@ public class StepOperation {
 			for (int i = 0; i < totalPage; i++) {
 				try {
 					memConn.setAutoCommit(false);
-					String sql = dialect.getLimitString(querySql, i * chunkSize,
-							chunkSize);
+					String sql = dialect.getLimitString(querySql,
+							i * chunkSize, chunkSize);
 					ResultSet rs = util.getResultSetBySql(bizConn, sql);
 					int batchSize = chunkUpdate(rs, pst, joinFieldList);
-					System.out.println("导入数据量："+batchSize);
+					System.out.println("导入数据量：" + batchSize);
 					util.close(rs);
 					memConn.commit();
 				} catch (Exception e) {
@@ -785,10 +771,10 @@ public class StepOperation {
 					bizConn.setAutoCommit(false);
 					String sql = dialect.getLimitString(query, i * chunkSize,
 							chunkSize);
-					//util.showResult(sql, memConn);
+					 util.showResult(sql, memConn);
 					ResultSet rs = util.getResultSetBySql(memConn, sql);
 					int batchSize = chunkUpdate(rs, pst, fields);
-					System.out.println("更新数据量："+batchSize);
+					System.out.println("更新数据量：" + batchSize);
 					util.close(rs);
 					bizConn.commit();
 				} catch (Exception e) {

@@ -12,7 +12,6 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import com.chenzr.iteration.*;
 import com.chenzr.iteration.bean.TableField;
 
 public class TestLaunchOperation {
@@ -28,7 +27,7 @@ public class TestLaunchOperation {
 	private Statement stamtMemConn = null;
 	
 	private	int chunkSize = 1000;
-	private int dataSize = (int) (5000 * Math.random());
+	private int dataSize = (int) (30000 * Math.random());
 	
 	@BeforeClass
 	public void beforeClass() {
@@ -36,7 +35,7 @@ public class TestLaunchOperation {
 			launchOperation = new LaunchOperation();
 			memConn = getH2Connection();
 			bizConn = getBizConn();
-			conn = getBizConn();
+			conn = getMySqlConn();
 			
 			stamtConn = conn.createStatement();
 			stamtBizConn = bizConn.createStatement();
@@ -82,7 +81,7 @@ public class TestLaunchOperation {
 			int k = 0;
 
 			//整型
-			for (int i = 0; i < 250; i++) {
+			for (int i = 0; i < 100; i++) {
 				k++;
 				String fieldname = "cv"+k;
 				String fieldcaption = "字段"+k;
@@ -92,48 +91,43 @@ public class TestLaunchOperation {
 						"( '"+fieldname+"', '"+fieldcaption+"', '整型', '"+stepName+"', "+k+", 0 )");
 			}
 			
-//			//金额
-//			for (int i = 0; i < 100; i++) {
-//				k++;
-//				String fieldname = "cv"+k;
-//				String fieldcaption = "字段"+k;
-//				stamtConn.executeUpdate("" +
-//						"INSERT INTO gsprojectstepdatastore " +
-//						"( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES " +
-//						"( '"+fieldname+"', '"+fieldcaption+"', '金额', '"+stepName+"', "+k+", 0 )");
-//			}
-//			
-//			//字符
-//			for (int i = 0; i < 50; i++) {
-//				k++;
-//				String fieldname = "cv"+k;
-//				String fieldcaption = "字段"+k;
-//				stamtConn.executeUpdate("" +
-//						"INSERT INTO gsprojectstepdatastore " +
-//						"( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES " +
-//						"( '"+fieldname+"', '"+fieldcaption+"', '中字符', '"+stepName+"', "+k+", 0 )");
-//			}
+			//金额
+			for (int i = 0; i <100; i++) {
+				k++;
+				String fieldname = "cv"+k;
+				String fieldcaption = "字段"+k;
+				stamtConn.executeUpdate("" +
+						"INSERT INTO gsprojectstepdatastore " +
+						"( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES " +
+						"( '"+fieldname+"', '"+fieldcaption+"', '金额', '"+stepName+"', "+k+", 0 )");
+			}
 			
-
+			//字符
+			for (int i = 0; i < 54; i++) {
+				k++;
+				String fieldname = "cv"+k;
+				String fieldcaption = "字段"+k;
+				stamtConn.executeUpdate("" +
+						"INSERT INTO gsprojectstepdatastore " +
+						"( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES " +
+						"( '"+fieldname+"', '"+fieldcaption+"', '字符', '"+stepName+"', "+k+", 0 )");
+			}
 			
 			stamtConn.executeUpdate("INSERT INTO gsprojectstepcolumnfield ( stepname, columnid, columnfield, columntype, decimalsize )" +
 					" SELECT stepname, fieldcaption, fieldname, datatype, 3 AS decimalsize FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型', '金额')");
 			
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, '$(\\'Math\\').random() * 10000' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')");
 
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '列运算' AS operateMode, 'ID=ID' AS updateCriteria, 'RAND()*100000/100' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
-
-			
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(10000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
+		
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '列运算' AS operateMode, 'ID=ID' AS updateCriteria, 'select RANDOM_UUID() ||\\' \\'|| RANDOM_UUID()' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <>'id' AND datatype IN ('字符')");
-			
-			
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'UUID()' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <> 'id' AND datatype IN ('字符')");
 			
 		} catch (Exception e) {
-			Assert.assertTrue(false);
 			e.printStackTrace();
+			Assert.assertTrue(false);
 		}
 
 	}
@@ -166,8 +160,8 @@ public class TestLaunchOperation {
 			bizConn.commit();
 			
 		} catch (Exception e) {
-			Assert.assertTrue(false);
 			e.printStackTrace();
+			Assert.assertTrue(false);
 		}
 	}
 	
@@ -177,8 +171,8 @@ public class TestLaunchOperation {
 			String msg = launchOperation.launch(stepName, "", conn, bizConn, memConn, true);
 			System.out.println(msg);
 		} catch (Exception e) {
-			Assert.assertTrue(false);
 			e.printStackTrace();
+			Assert.assertTrue(false);
 		}
 	}
 	
@@ -247,7 +241,7 @@ public class TestLaunchOperation {
 	private Connection getMySqlConn() {
 		Connection conn = null;
 		try {
-			String url = "jdbc:mysql://127.0.0.1:3306/iteration";
+			String url = "jdbc:mysql://127.0.0.1:3306/test";
 			String username = "root";
 			String password = "root";
 			Class.forName("com.mysql.jdbc.Driver");
@@ -256,5 +250,18 @@ public class TestLaunchOperation {
 			e.printStackTrace();
 		}
 		return conn;
+	}
+	
+	public static void main(String[] args) {
+		try {
+			TestLaunchOperation test = new TestLaunchOperation();
+			test.beforeClass();
+			test.init();
+			test.initData();
+			test.launch();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

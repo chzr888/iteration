@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.rowset.CachedRowSetImpl;
 
-@SuppressWarnings("restriction")
 public class SqlUtil {
 	
 	private static Logger logger = LoggerFactory.getLogger(SqlUtil.class);
@@ -112,6 +111,7 @@ public class SqlUtil {
 	 * @param tableName
 	 * @param memConn
 	 */
+	@SuppressWarnings("null")
 	public void dropMemoryTable(String tableName,Connection memConn){
 		try {
 			if(null != tableName || !tableName.isEmpty()){
