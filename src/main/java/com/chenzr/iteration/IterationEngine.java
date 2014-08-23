@@ -35,14 +35,11 @@ public class IterationEngine {
 			for (int i = 0; i < classes.length; i++) {
 				Class<?> cls = classes[i];
 				if (Function.class.isAssignableFrom(cls)) {
-					System.out.println(cls);
+					//System.out.println(cls);
 					Function fun = (Function) cls.newInstance();
 					engine.addFun(fun);
 				}
 			}
-			FunMgr mgr = engine.getFunMgr();
-			Function f= mgr.getFun("uuid");
-			System.out.println(f.getName());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
