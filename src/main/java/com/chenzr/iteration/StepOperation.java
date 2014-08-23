@@ -771,7 +771,7 @@ public class StepOperation {
 					bizConn.setAutoCommit(false);
 					String sql = dialect.getLimitString(query, i * chunkSize,
 							chunkSize);
-					 util.showResult(sql, memConn);
+					// util.showResult(sql, memConn);
 					ResultSet rs = util.getResultSetBySql(memConn, sql);
 					int batchSize = chunkUpdate(rs, pst, fields);
 					System.out.println("更新数据量：" + batchSize);
