@@ -18,9 +18,7 @@ public class FunctionUUID extends CommonFunction{
 
 	@Override
 	public Object call(Object[] arguments) {
-		String uuid = UUID.randomUUID().toString();
-		System.out.println(uuid);
-		return uuid;
+		return UUID.randomUUID().toString();
 	}
 
 }
