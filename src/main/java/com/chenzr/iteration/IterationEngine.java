@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.greenpineyu.fel.FelEngine;
 import com.greenpineyu.fel.FelEngineImpl;
-import com.greenpineyu.fel.function.FunMgr;
 import com.greenpineyu.fel.function.Function;
 
 /**
