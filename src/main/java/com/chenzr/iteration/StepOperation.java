@@ -17,11 +17,11 @@ import org.slf4j.LoggerFactory;
 import com.chenzr.iteration.bean.StepSetOperation;
 import com.chenzr.iteration.bean.TableField;
 import com.chenzr.iteration.dialect.Dialect;
+import com.chenzr.iteration.impl.IterationContextImpl;
+import com.chenzr.iteration.impl.IterationEngineImpl;
 import com.chenzr.iteration.impl.UnitOperationImpl;
 import com.chenzr.iteration.utils.SqlUtil;
-import com.greenpineyu.fel.FelEngine;
-import com.greenpineyu.fel.context.ArrayCtxImpl;
-import com.greenpineyu.fel.context.FelContext;
+
 
 public class StepOperation {
 
@@ -203,7 +203,7 @@ public class StepOperation {
 			rs = util.getResultSetBySql(memConn, sql);
 			try {
 				//long time = 0;
-				FelEngine engine = IterationEngine.getInstance();
+				IterationEngine engine = IterationEngineImpl.getInstance();
 				UnitOperation unitOperation = new UnitOperationImpl();
 				// 更新id
 				String id = "";
@@ -232,7 +232,7 @@ public class StepOperation {
 						boolean isUpdate = true;
 						if (getCategorySetIsUpdateCriteria(stepSetOperation)) {
 							isUpdate = false;
-							FelContext ctx = new ArrayCtxImpl();
+							IterationContext ctx = new IterationContextImpl();
 							for (Entry<String, Object> m : _row.entrySet()) {
 								ctx.set(m.getKey(), m.getValue());
 							}
@@ -244,7 +244,7 @@ public class StepOperation {
 						}
 						if (isUpdate) {
 							// 修改后的数据
-							FelContext ctx = new ArrayCtxImpl();
+							IterationContext ctx = new IterationContextImpl();
 							for (Entry<String, Object> m : _row.entrySet()) {
 								ctx.set(m.getKey(), m.getValue());
 							}

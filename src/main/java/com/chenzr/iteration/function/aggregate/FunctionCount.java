@@ -1,8 +1,9 @@
 package com.chenzr.iteration.function.aggregate;
 
-import com.greenpineyu.fel.function.CommonFunction;
+import com.chenzr.iteration.CustomFunction;
 
-public class FunctionCount extends CommonFunction {
+
+public class FunctionCount extends CustomFunction {
 
 	@Override
 	public String getName() {

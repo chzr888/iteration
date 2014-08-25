@@ -1,7 +1,5 @@
 package com.chenzr.iteration;
 
-import com.greenpineyu.fel.FelEngine;
-import com.greenpineyu.fel.context.FelContext;
 
 /**
  * 单元运算接口
@@ -17,7 +15,7 @@ public interface UnitOperation {
 	 * @return
 	 * @throws Exception
 	 */
-	Object operation(FelEngine engine,String exp)throws Exception;
+	Object operation(IterationEngine engine,String exp)throws Exception;
 	
 	/**
 	 * 运算引擎
@@ -27,5 +25,5 @@ public interface UnitOperation {
 	 * @return
 	 * @throws Exception
 	 */
-	Object operation(FelEngine engine,String exp,FelContext ctx) throws Exception;
+	Object operation(IterationEngine engine,String exp,IterationContext ctx) throws Exception;
 }

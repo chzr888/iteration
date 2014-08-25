@@ -2,14 +2,14 @@ package com.chenzr.iteration.function;
 
 import java.util.UUID;
 
-import com.greenpineyu.fel.function.CommonFunction;
+import com.chenzr.iteration.CustomFunction;
 
 /**
  * GUID
  * @author chenzr
  *
  */
-public class FunctionUUID extends CommonFunction{
+public class FunctionUUID extends CustomFunction{
 
 	@Override
 	public String getName() {

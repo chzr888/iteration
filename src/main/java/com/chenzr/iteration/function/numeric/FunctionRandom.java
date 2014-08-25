@@ -1,9 +1,9 @@
 package com.chenzr.iteration.function.numeric;
 
+import com.chenzr.iteration.CustomFunction;
 import com.greenpineyu.fel.common.NumberUtil;
-import com.greenpineyu.fel.function.CommonFunction;
 
-public class FunctionRandom extends CommonFunction {
+public class FunctionRandom extends CustomFunction {
 
 	@Override
 	public String getName() {

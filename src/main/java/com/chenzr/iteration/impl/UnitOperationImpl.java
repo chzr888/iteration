@@ -1,8 +1,8 @@
 package com.chenzr.iteration.impl;
 
+import com.chenzr.iteration.IterationContext;
+import com.chenzr.iteration.IterationEngine;
 import com.chenzr.iteration.UnitOperation;
-import com.greenpineyu.fel.FelEngine;
-import com.greenpineyu.fel.context.FelContext;
 
 
 /**
@@ -13,13 +13,14 @@ import com.greenpineyu.fel.context.FelContext;
 public class UnitOperationImpl implements UnitOperation {
 
 	@Override
-	public Object operation(FelEngine engine, String exp) throws Exception {
+	public Object operation(IterationEngine engine, String exp)
+			throws Exception {
 		return engine.eval(exp);
 	}
 
 	@Override
-	public Object operation(FelEngine engine, String exp,FelContext ctx )
-			throws Exception {
+	public Object operation(IterationEngine engine, String exp,
+			IterationContext ctx) throws Exception {
 		return engine.eval(exp, ctx);
 	}
 
