@@ -75,7 +75,7 @@ public class IterationEngineImpl extends FelEngineImpl implements IterationEngin
 			for (int i = 0; i < classes.length; i++) {
 				Class<?> cls = classes[i];
 				if (Function.class.isAssignableFrom(cls)) {
-					System.out.println(cls);
+					//System.out.println(cls);
 					Function fun = (Function) cls.newInstance();
 					engine.addFun(fun);
 				}
