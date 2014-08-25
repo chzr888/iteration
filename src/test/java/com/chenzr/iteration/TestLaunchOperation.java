@@ -27,7 +27,7 @@ public class TestLaunchOperation {
 	private Statement stamtMemConn = null;
 	
 	private	int chunkSize = 1000;
-	private int dataSize = (int) (30000 * Math.random());
+	private int dataSize = (int) (1000000 * Math.random());
 	
 	@BeforeClass
 	public void beforeClass() {
@@ -117,10 +117,10 @@ public class TestLaunchOperation {
 					" SELECT stepname, fieldcaption, fieldname, datatype, 3 AS decimalsize FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型', '金额')");
 			
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(1000) * RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')");
 
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(10000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(10000) * RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
 		
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
 					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'UUID()' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <> 'id' AND datatype IN ('字符')");
@@ -168,7 +168,7 @@ public class TestLaunchOperation {
 	@Test (dependsOnMethods = {"initData"})
 	public void launch(){
 		try {
-			String msg = launchOperation.launch(stepName, "", conn, bizConn, memConn, true);
+			String msg = launchOperation.launch(stepName, "", conn, bizConn, memConn, false);
 			System.out.println(msg);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,8 +258,9 @@ public class TestLaunchOperation {
 			test.beforeClass();
 			test.init();
 			test.initData();
+			long stime = System.currentTimeMillis();
 			test.launch();
-			
+			System.out.println("运算耗时 :"+(System.currentTimeMillis() - stime));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
