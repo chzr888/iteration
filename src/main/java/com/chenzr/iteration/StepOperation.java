@@ -28,7 +28,7 @@ public class StepOperation {
 	private Logger logger = LoggerFactory.getLogger(StepOperation.class);
 	private SqlUtil util = new SqlUtil();
 	// 每页大小
-	private int chunkSize = 1000;
+	private int chunkSize = 10000;
 
 	/**
 	 * 运行
@@ -202,13 +202,14 @@ public class StepOperation {
 			Map<String, Map<String, Object>> afterRowListMap = new LinkedHashMap<String, Map<String, Object>>();
 			rs = util.getResultSetBySql(memConn, sql);
 			try {
-				//long time = 0;
+				long time = System.currentTimeMillis();
 				IterationEngine engine = IterationEngineImpl.getInstance();
 				UnitOperation unitOperation = new UnitOperationImpl();
+				IterationContext ctx = new IterationContextImpl();
 				// 更新id
 				String id = "";
 				while (rs.next()) {
-					//time = System.currentTimeMillis();
+//					time = System.currentTimeMillis();
 					// 当前行数据
 					Map<String, Object> _row = new HashMap<String, Object>();
 					id = rs.getString("id");
@@ -216,26 +217,23 @@ public class StepOperation {
 					for (Entry<String, String> stepOperation : fields
 							.entrySet()) {
 						String key = stepOperation.getValue();
-						String value = rs.getString(stepOperation.getKey());
+						Object value = rs.getObject(stepOperation.getKey());
 						_row.put(key, value);
 					}
-
+					ctx.clear();
+					ctx.set(_row);
+					
 					// 迭代
 					for (int i = 0; i < categorySet.size(); i++) {
 
 						StepSetOperation stepSetOperation = categorySet.get(i);
 						String columnName = stepSetOperation.getColumnName();
-
 						// 更新条件
 						String updateCriteria = stepSetOperation
 								.getUpdateCriteria();
 						boolean isUpdate = true;
 						if (getCategorySetIsUpdateCriteria(stepSetOperation)) {
 							isUpdate = false;
-							IterationContext ctx = new IterationContextImpl();
-							for (Entry<String, Object> m : _row.entrySet()) {
-								ctx.set(m.getKey(), m.getValue());
-							}
 							Object object = unitOperation.operation(engine,
 									updateCriteria, ctx);
 							if (object instanceof Boolean) {
@@ -244,19 +242,17 @@ public class StepOperation {
 						}
 						if (isUpdate) {
 							// 修改后的数据
-							IterationContext ctx = new IterationContextImpl();
-							for (Entry<String, Object> m : _row.entrySet()) {
-								ctx.set(m.getKey(), m.getValue());
-							}
 							String formula = stepSetOperation.getFormula();
 							Object value = unitOperation.operation(engine,
 									formula, ctx);
+							ctx.set(columnName, value);
 							_row.put(columnName, value);
 						}
 					}
 					afterRowListMap.put(id, _row);
-					//System.out.println(System.currentTimeMillis() - time);
+//					System.out.println(System.currentTimeMillis() - time);
 				}
+				System.out.println(System.currentTimeMillis() - time);
 				util.close(rs);
 			} catch (Exception e) {
 				throw e;

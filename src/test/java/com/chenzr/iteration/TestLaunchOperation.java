@@ -26,8 +26,8 @@ public class TestLaunchOperation {
 	private Statement stamtBizConn = null;
 	private Statement stamtMemConn = null;
 	
-	private	int chunkSize = 1000;
-	private int dataSize = (int) (1000000 * Math.random());
+	private	int chunkSize = 10000;
+	private int dataSize = 508000;
 	
 	@BeforeClass
 	public void beforeClass() {
@@ -117,13 +117,13 @@ public class TestLaunchOperation {
 					" SELECT stepname, fieldcaption, fieldname, datatype, 3 AS decimalsize FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型', '金额')");
 			
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(1000) * RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'RANDOM(1000,1) + 字段1+字段2/100+字段3' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')  AND fieldcaption NOT IN ('字段1','字段2','字段3','字段4','字段5')");
 
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'RANDOM(10000) * RANDOM(1000)' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'RANDOM(10000,1) + 字段1+字段2-字段3/100+字段4' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
 		
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, 'ID==ID' AS updateCriteria, 'UUID()' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <> 'id' AND datatype IN ('字符')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'UUID()' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <> 'id' AND datatype IN ('字符')");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -140,25 +140,32 @@ public class TestLaunchOperation {
 			List<TableField> fieldsList = launchOperation.getTableFields(stepName, conn);
 			tableName = launchOperation.getTableName(stepName, conn);
 			StepOperation operation = new StepOperation();
-			operation.createMemoryTable(tableName, fieldsList, bizConn);
+			//operation.createMemoryTable(tableName, fieldsList, bizConn);
 			
-			String sqlStr = "INSERT INTO "+tableName+" (id) VALUES (?)";
+			String sqlStr = "INSERT INTO "+tableName+" (id,cv1,cv2,cv3,cv4,cv5) VALUES (?,?,?,?,?,?)";
 			bizConn.setAutoCommit(false);
 			PreparedStatement pst = bizConn.prepareStatement(sqlStr);
 			int step = 0;
 			for (int i = 0; i < dataSize; i++) {
 				step ++;
 				pst.setString(1, UUID.randomUUID().toString());
+				pst.setInt(2, (int) (Math.random() * 100));
+				pst.setInt(3, (int) (Math.random() * 1040));
+				pst.setInt(4, (int) (Math.random() * 431));
+				pst.setInt(5, (int) (Math.random() * 1430));
+				pst.setInt(6, (int) (Math.random() * 1300));
 				pst.addBatch();
 				if(step/chunkSize == 1){
 					pst.executeBatch();
+					bizConn.commit();
 					step = 0;
+					System.out.println(i);
 				}
 			}
 			pst.executeBatch();
 			pst.close();
 			bizConn.commit();
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			Assert.assertTrue(false);
@@ -257,7 +264,7 @@ public class TestLaunchOperation {
 			TestLaunchOperation test = new TestLaunchOperation();
 			test.beforeClass();
 			test.init();
-			test.initData();
+			//test.initData();
 			long stime = System.currentTimeMillis();
 			test.launch();
 			System.out.println("运算耗时 :"+(System.currentTimeMillis() - stime));

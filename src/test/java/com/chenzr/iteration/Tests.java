@@ -2,12 +2,16 @@ package com.chenzr.iteration;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.chenzr.iteration.impl.IterationContextImpl;
 import com.chenzr.iteration.impl.IterationEngineImpl;
 import com.greenpineyu.fel.FelEngine;
 import com.greenpineyu.fel.FelEngineImpl;
 import com.greenpineyu.fel.common.NumberUtil;
 import com.greenpineyu.fel.context.FelContext;
+import com.greenpineyu.fel.context.MapContext;
 import com.greenpineyu.fel.function.Function;
 
 public class Tests {
@@ -173,24 +177,34 @@ public class Tests {
 //			// ClassAdapter ca = new ChangeVersionAdapter (cw);
 //			// cr.accept(ca, 0);
 //			// byte[] b2 = cw.toByteArray();
-			long startTime = System.currentTimeMillis();
+//			long startTime = System.currentTimeMillis();
+//			
+//			IterationEngine engine = IterationEngineImpl.getInstance();
+//			System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
+//			for (int i = 0; i < 100; i++) {	
+//				startTime = System.currentTimeMillis();
+//				FelContext ctx = engine.getContext();
+//				ctx.set("数量", 10);
+//				ctx.set("单价", 3);
+//				ctx.set("人员数", 2);
+//				ctx.set("消耗费", 20);
+//				String exp = "数量 * 单价 * 人员数  + 消耗费 + RANDOM()";
+//				System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
+//				startTime = System.currentTimeMillis();
+//				Object value = engine.eval(exp, ctx);
+//				System.out.println(value);
+//				System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
+//			}
+			Map<String, Object> map = new HashMap<String,Object>();
+			IterationContext ctx = new IterationContextImpl();
+			ctx.clear();
+			map.put("人员", "小明");
+			map.put("工号", 007);
+			ctx.set(map);
+			map.put("人员", "小明a");
+			Object value = ctx.get("人员");
+			System.out.println(value);
 			
-			IterationEngine engine = IterationEngineImpl.getInstance();
-			System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
-			for (int i = 0; i < 100; i++) {	
-				startTime = System.currentTimeMillis();
-				FelContext ctx = engine.getContext();
-				ctx.set("数量", 10);
-				ctx.set("单价", 3);
-				ctx.set("人员数", 2);
-				ctx.set("消耗费", 20);
-				String exp = "数量 * 单价 * 人员数  + 消耗费 + RANDOM()";
-				System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
-				startTime = System.currentTimeMillis();
-				Object value = engine.eval(exp, ctx);
-				System.out.println(value);
-				System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

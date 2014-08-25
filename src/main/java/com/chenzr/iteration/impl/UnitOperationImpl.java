@@ -21,7 +21,10 @@ public class UnitOperationImpl implements UnitOperation {
 	@Override
 	public Object operation(IterationEngine engine, String exp,
 			IterationContext ctx) throws Exception {
-		return engine.eval(exp, ctx);
+//		long time = System.currentTimeMillis();
+		Object value = engine.eval(exp, ctx);
+//		System.out.println(System.currentTimeMillis() - time);
+		return value;
 	}
 
 

@@ -15,8 +15,8 @@ public class FunctionRandom extends CustomFunction {
 		if(null != arguments && arguments.length>0){
 			double l = NumberUtil.toDouble(arguments[0]);
 			if(arguments.length>1){
-				double r =  NumberUtil.toDouble(arguments[1]);
-				return Math.random() * l * r;
+				Object value = NumberUtil.toInteger(Math.random() * l );
+				return value;
 			}
 			return Math.random() * l;
 		}
