@@ -27,7 +27,7 @@ public class TestLaunchOperation {
 	private Statement stamtMemConn = null;
 	
 	private	int chunkSize = 10000;
-	private int dataSize = 508000;
+	private int dataSize = 10000 * 100;
 	
 	@BeforeClass
 	public void beforeClass() {
@@ -77,7 +77,7 @@ public class TestLaunchOperation {
 			//插入数据
 			stamtConn.executeUpdate("INSERT INTO gsprojectstepdefined ( sqltablename, stepname, actived, ispublic ) VALUES ( 'iterationtable2xx', '"+stepName+"', '1', '0' )");
 			
-			stamtConn.executeUpdate("INSERT INTO gsprojectstepdatastore ( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES ( 'id', 'ID', '字符', '"+stepName+"', 0, 1 )");
+			stamtConn.executeUpdate("INSERT INTO gsprojectstepdatastore ( fieldname, fieldcaption, datatype, stepname, NO, iskey ) VALUES ( 'id', 'ID', '整型', '"+stepName+"', 0, 1 )");
 			int k = 0;
 
 			//整型
@@ -117,7 +117,7 @@ public class TestLaunchOperation {
 					" SELECT stepname, fieldcaption, fieldname, datatype, 3 AS decimalsize FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型', '金额')");
 			
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
-					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'RANDOM(1000,1) + 字段1+字段2/100+字段3' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('整型')  AND fieldcaption NOT IN ('字段1','字段2','字段3','字段4','字段5')");
+					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'RANDOM(1000,1) + 字段1+字段2/100+字段3' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND fieldname <> 'id'  AND datatype IN ('整型')  AND fieldcaption NOT IN ('字段1','字段2','字段3','字段4','字段5')");
 
 			stamtConn.executeUpdate("INSERT INTO gmstepoperation ( stepname, NO, columnId, columnName, type, operateMode, updateCriteria, formula )" +
 					" SELECT stepname, NO, fieldname, fieldcaption, '栏目运算' AS type, '行运算' AS operateMode, '1==1' AS updateCriteria, 'RANDOM(10000,1) + 字段1+字段2-字段3/100+字段4' AS formula FROM gsprojectstepdatastore WHERE stepname = '"+stepName+"' AND datatype IN ('金额')");
@@ -140,7 +140,7 @@ public class TestLaunchOperation {
 			List<TableField> fieldsList = launchOperation.getTableFields(stepName, conn);
 			tableName = launchOperation.getTableName(stepName, conn);
 			StepOperation operation = new StepOperation();
-			//operation.createMemoryTable(tableName, fieldsList, bizConn);
+			operation.createMemoryTable(tableName, fieldsList, bizConn);
 			
 			String sqlStr = "INSERT INTO "+tableName+" (id,cv1,cv2,cv3,cv4,cv5) VALUES (?,?,?,?,?,?)";
 			bizConn.setAutoCommit(false);
@@ -148,7 +148,7 @@ public class TestLaunchOperation {
 			int step = 0;
 			for (int i = 0; i < dataSize; i++) {
 				step ++;
-				pst.setString(1, UUID.randomUUID().toString());
+				pst.setInt(1, 	i);
 				pst.setInt(2, (int) (Math.random() * 100));
 				pst.setInt(3, (int) (Math.random() * 1040));
 				pst.setInt(4, (int) (Math.random() * 431));
@@ -264,7 +264,7 @@ public class TestLaunchOperation {
 			TestLaunchOperation test = new TestLaunchOperation();
 			test.beforeClass();
 			test.init();
-			//test.initData();
+		//	test.initData();
 			long stime = System.currentTimeMillis();
 			test.launch();
 			System.out.println("运算耗时 :"+(System.currentTimeMillis() - stime));

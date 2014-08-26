@@ -569,6 +569,7 @@ public class StepOperation {
 		try {
 			Dialect dialect = Dialect.getInstance(memConn);
 			StringBuffer keyStr = new StringBuffer();
+			String key = "";
 			util.upDateBySql("DROP TABLE IF EXISTS " + tableName, memConn);
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < fieldsList.size(); i++) {
@@ -591,12 +592,15 @@ public class StepOperation {
 						keyStr.append(",");
 					}
 					keyStr.append(field.getFieldName());
+					key +="_"+field.getFieldName();
 				}
 			}
 			String sqlString = "CREATE TABLE " + tableName + " " + "( "
 					+ sb.toString() + ",PRIMARY KEY (" + keyStr.toString()
 					+ "))";
 			util.upDateBySql(sqlString, memConn);
+			String indexSql = "CREATE INDEX "+tableName+"_index"+key+" ON "+tableName+" ("+keyStr.toString()+")";
+			util.upDateBySql(indexSql, memConn);
 		} catch (Exception e) {
 			throw e;
 		} finally {
