@@ -22,6 +22,8 @@ public class StepSetOperation {
 	private String formula;
 	//更新条件
 	private String updateCriteria;
+	//是否更新
+	private boolean isUpdate;
 	//表示需要精确到小数点以后几位
 	private int scale;
 	//表示用户指定的舍入模式
@@ -136,6 +138,11 @@ public class StepSetOperation {
 	 * @param updateCriteria
 	 */
 	public void setUpdateCriteria(String updateCriteria) {
+		if(null != updateCriteria){
+			if(!"".equals(updateCriteria.trim())){
+				setUpdate(true);
+			}
+		}
 		this.updateCriteria = updateCriteria;
 	}
 	/**
@@ -165,4 +172,15 @@ public class StepSetOperation {
 	public void setRoundMode(int roundMode) {
 		this.roundMode = roundMode;
 	}
+	/**
+	 * 是否更新
+	 * @return
+	 */
+	public boolean isUpdate() {
+		return isUpdate;
+	}
+	public void setUpdate(boolean isUpdate) {
+		this.isUpdate = isUpdate;
+	}
+	
 }

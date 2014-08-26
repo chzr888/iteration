@@ -232,7 +232,7 @@ public class StepOperation {
 						String updateCriteria = stepSetOperation
 								.getUpdateCriteria();
 						boolean isUpdate = true;
-						if (getCategorySetIsUpdateCriteria(stepSetOperation)) {
+						if (stepSetOperation.isUpdate()) {
 							isUpdate = false;
 							Object object = unitOperation.operation(engine,
 									updateCriteria, ctx);
