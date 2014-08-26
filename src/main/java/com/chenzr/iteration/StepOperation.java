@@ -197,12 +197,12 @@ public class StepOperation {
 			Connection memConn) throws Exception {
 		ResultSet rs = null;
 		int upRowNum = 0;
+		long time = System.currentTimeMillis();
 		try {
 			// 修改后的数据
 			Map<String, Map<String, Object>> afterRowListMap = new LinkedHashMap<String, Map<String, Object>>();
 			rs = util.getResultSetBySql(memConn, sql);
 			try {
-				long time = System.currentTimeMillis();
 				IterationEngine engine = IterationEngineImpl.getInstance();
 				UnitOperation unitOperation = new UnitOperationImpl();
 				IterationContext ctx = new IterationContextImpl();
@@ -257,8 +257,10 @@ public class StepOperation {
 			} catch (Exception e) {
 				throw e;
 			}
+			time = System.currentTimeMillis();
 			upRowNum = batchRowUpdate(categorySet, afterRowListMap, tableName,
 					memConn);
+			System.out.println(System.currentTimeMillis() - time);
 		} catch (Exception e) {
 			logger.error("{}", e);
 			throw e;
