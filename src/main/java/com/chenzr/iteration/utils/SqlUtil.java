@@ -73,10 +73,8 @@ public class SqlUtil {
 	public void close(Statement stmt) {
 		if (null != stmt) {
 			try {
-				if (!stmt.isClosed()) {
-					stmt.close();
-					stmt = null;
-				}
+				stmt.close();
+				stmt = null;
 			} catch (Exception e) {
 			}
 		}
