@@ -14,11 +14,11 @@ public class AddFunction extends AbstractFunction{
 		return "add";
 	}
 	
-	public AviatorObject call(Map<String, Object> env, AviatorObject... args) {   
-//        Number left = FunctionUtils.getNumberValue(arg0, env);
-//        Number right = FunctionUtils.getNumberValue(arg1, env);  
-//        return new AviatorDouble(left.doubleValue() + right.doubleValue());  
-        return new AviatorDouble(0.0);
+	public AviatorObject call(Map<String, Object> env, AviatorObject arg0,AviatorObject arg1) {   
+        Number left = FunctionUtils.getNumberValue(arg0, env);
+        Number right = FunctionUtils.getNumberValue(arg1, env);  
+        return new AviatorDouble(left.doubleValue() + right.doubleValue());  
+//        return new AviatorDouble(0.0);
     } 
 	
 }
