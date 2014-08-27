@@ -30,7 +30,7 @@ public class SQLServerDialect extends Dialect {
 		pagingSelect.append(keyStr);
 		pagingSelect.append(" ) as rownum_,queryView.* from ( ");
 		pagingSelect.append(sqlStr);
-		pagingSelect.append(" ) queryView ) queryView2 where rownum_>=");
+		pagingSelect.append(" ) queryView ) queryView2 where rownum_>");
 		pagingSelect.append(offset);
 		pagingSelect.append("and rownum_<=");
 		pagingSelect.append((offset+limit));

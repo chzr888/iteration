@@ -21,9 +21,12 @@ public class OracleDialect extends Dialect{
 	public String getLimitString(String query, int offset, int limit) {
 		String sql = query.trim();
 		StringBuilder pagingSelect = new StringBuilder();
-		pagingSelect.append( "select * from ( select row_.*, rownum rownum_ from ( " );
+		pagingSelect.append( "SELECT * FROM ( SELECT ROWNUM rownum_, queryView.* FROM (" );
 		pagingSelect.append( sql );
-		pagingSelect.append( " ) row_ ) where rownum_ <= "+(offset+limit)+" and rownum_ > "+offset );
+		pagingSelect.append( ") queryView WHERE ROWNUM <= ");
+		pagingSelect.append(offset);
+		pagingSelect.append(" ) WHERE rownum_ > " );
+		pagingSelect.append(offset+limit);
 		return pagingSelect.toString();
 	}
 
