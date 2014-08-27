@@ -21,6 +21,7 @@ import com.chenzr.iteration.impl.IterationContextImpl;
 import com.chenzr.iteration.impl.IterationEngineImpl;
 import com.chenzr.iteration.impl.UnitOperationImpl;
 import com.chenzr.iteration.utils.SqlUtil;
+import com.greenpineyu.fel.Expression;
 
 
 public class StepOperation {
@@ -150,6 +151,7 @@ public class StepOperation {
 						startTime = System.currentTimeMillis();
 						String sql = dialect.getLimitString(query, j
 								* chunkSize, chunkSize);
+						sql = "SELECT * FROM "+tableName+" WHERE id >= "+j*chunkSize+" ORDER BY id LIMIT "+chunkSize;
 						int count = rowIteration(listSSO, fieldsMap, tableName,
 								sql, memConn);
 						System.out
@@ -234,8 +236,10 @@ public class StepOperation {
 						boolean isUpdate = true;
 						if (stepSetOperation.isUpdate()) {
 							isUpdate = false;
-							Object object = unitOperation.operation(engine,
-									updateCriteria, ctx);
+//							Object object = unitOperation.operation(engine,
+//									updateCriteria, ctx);
+							Expression exp = engine.compileExp(updateCriteria, ctx);
+							Object object  = exp.eval(ctx);
 							if (object instanceof Boolean) {
 								isUpdate = (Boolean) object;
 							}
@@ -243,8 +247,10 @@ public class StepOperation {
 						if (isUpdate) {
 							// 修改后的数据
 							String formula = stepSetOperation.getFormula();
-							Object value = unitOperation.operation(engine,
-									formula, ctx);
+//							Object value = unitOperation.operation(engine,
+//									formula, ctx);
+							Expression exp = engine.compileExp(formula, ctx);
+							Object value  = exp.eval(ctx);
 							ctx.set(columnName, value);
 							_row.put(columnName, value);
 						}

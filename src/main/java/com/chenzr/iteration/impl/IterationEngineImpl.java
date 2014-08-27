@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.chenzr.iteration.IterationContext;
 import com.chenzr.iteration.IterationEngine;
+import com.greenpineyu.fel.Expression;
 import com.greenpineyu.fel.FelEngineImpl;
 import com.greenpineyu.fel.compile.CompileService;
 import com.greenpineyu.fel.context.FelContext;
@@ -30,6 +32,9 @@ public class IterationEngineImpl extends FelEngineImpl implements IterationEngin
 			'a', 'b', 'c', 'd', 'e', 'f' };
 	
 	private Map<String, FelNode> preparedNode = new HashMap<String, FelNode>();
+	
+	private Map<String, Expression> compileExpMap = new HashMap<String, Expression>();
+
 	
 	public IterationEngineImpl() {
 		try {
@@ -158,4 +163,17 @@ public class IterationEngineImpl extends FelEngineImpl implements IterationEngin
 		}
 		return sb.toString();
 	}
+
+	@Override
+	public Expression compileExp(String exp, IterationContext ctx) {
+		String md5 = getMd5(exp);
+		Expression ie = compileExpMap.get(md5);
+		if(null == ie){
+			ie =  super.compile(exp, ctx, null);
+			compileExpMap.put(md5, ie);
+		}
+		return ie;
+	}
+
+
 }

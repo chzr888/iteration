@@ -1,5 +1,6 @@
 package com.chenzr.iteration;
 
+import com.greenpineyu.fel.Expression;
 import com.greenpineyu.fel.FelEngine;
 
 
@@ -10,5 +11,7 @@ import com.greenpineyu.fel.FelEngine;
  * 
  */
 public interface IterationEngine extends FelEngine{
+	
+	Expression compileExp(String exp, IterationContext ctx);
 	
 }
