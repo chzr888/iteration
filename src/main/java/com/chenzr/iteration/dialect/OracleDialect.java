@@ -24,9 +24,9 @@ public class OracleDialect extends Dialect{
 		pagingSelect.append( "SELECT * FROM ( SELECT ROWNUM rownum_, queryView.* FROM (" );
 		pagingSelect.append( sql );
 		pagingSelect.append( ") queryView WHERE ROWNUM <= ");
-		pagingSelect.append(offset);
-		pagingSelect.append(" ) WHERE rownum_ > " );
 		pagingSelect.append(offset+limit);
+		pagingSelect.append(" ) WHERE rownum_ > " );
+		pagingSelect.append(offset);
 		return pagingSelect.toString();
 	}
 
