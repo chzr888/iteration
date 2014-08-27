@@ -23,18 +23,23 @@ public class SQLServerDialect extends Dialect {
 	}
 	
 	@Override
-	public String getLimitString(String query, int offset, int limit, String keyStr) {
-		String sqlStr = query.trim();
-		StringBuilder pagingSelect = new StringBuilder();
-		pagingSelect.append("select * from (select row_number() over(order by ");
-		pagingSelect.append(keyStr);
-		pagingSelect.append(" ) as rownum_,queryView.* from ( ");
-		pagingSelect.append(sqlStr);
-		pagingSelect.append(" ) queryView ) queryView2 where rownum_>");
-		pagingSelect.append(offset);
-		pagingSelect.append("and rownum_<=");
-		pagingSelect.append((offset+limit));
-		return pagingSelect.toString();
+	public String getLimitString(String query, int offset, int limit, String key) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("select * from (select row_number() over(order by ");
+		sb.append(key);
+		sb.append(" ) as rownum_,queryView.* from ( ");
+		sb.append(query);
+		sb.append(" ) queryView ) queryView2 where rownum_>");
+		sb.append(offset);
+		sb.append("and rownum_<=");
+		sb.append((offset+limit));
+		return sb.toString();
+	}
+	
+	@Override
+	public String getLimitString(String query, int offset, int limit,
+			String key, String keyType) {
+		return getLimitString(query, offset, limit, key);
 	}
 
 	@Override

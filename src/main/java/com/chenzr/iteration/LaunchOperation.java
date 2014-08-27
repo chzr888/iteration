@@ -8,12 +8,12 @@ import java.util.List;
 
 import com.chenzr.iteration.bean.StepSetOperation;
 import com.chenzr.iteration.bean.TableField;
-import com.chenzr.iteration.utils.SqlUtil;
+import com.chenzr.iteration.utils.JdbcHelper;
 
 
 public class LaunchOperation {
 
-	private SqlUtil util = new SqlUtil();
+	private JdbcHelper util = new JdbcHelper();
 
 	/**
 	 * 运行

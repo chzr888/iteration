@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.rowset.CachedRowSetImpl;
 
-public class SqlUtil {
+public class JdbcHelper {
 	
-	private static Logger logger = LoggerFactory.getLogger(SqlUtil.class);
+	private  Logger logger = LoggerFactory.getLogger(JdbcHelper.class);
 
 	public ResultSet getResultSetBySql(Connection conn, String sql)
 			throws SQLException {

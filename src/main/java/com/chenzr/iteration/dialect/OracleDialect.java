@@ -19,19 +19,24 @@ public class OracleDialect extends Dialect{
 
 	@Override
 	public String getLimitString(String query, int offset, int limit) {
-		String sql = query.trim();
-		StringBuilder pagingSelect = new StringBuilder();
-		pagingSelect.append( "SELECT * FROM ( SELECT ROWNUM rownum_, queryView.* FROM (" );
-		pagingSelect.append( sql );
-		pagingSelect.append( ") queryView WHERE ROWNUM <= ");
-		pagingSelect.append(offset+limit);
-		pagingSelect.append(" ) WHERE rownum_ > " );
-		pagingSelect.append(offset);
-		return pagingSelect.toString();
+		StringBuilder sb = new StringBuilder();
+		sb.append( "SELECT * FROM ( SELECT ROWNUM rownum_, queryView.* FROM (" );
+		sb.append( query );
+		sb.append( ") queryView WHERE ROWNUM <= ");
+		sb.append(offset+limit);
+		sb.append(" ) WHERE rownum_ > " );
+		sb.append(offset);
+		return sb.toString();
 	}
 
 	@Override
 	public String getLimitString(String query, int offset, int limit, String key) {
+		return getLimitString(query, offset, limit);
+	}
+	
+	@Override
+	public String getLimitString(String query, int offset, int limit,
+			String key, String keyType) {
 		return getLimitString(query, offset, limit);
 	}
 
@@ -48,5 +53,4 @@ public class OracleDialect extends Dialect{
 		sb.append("' ; EXCEPTION WHEN OTHERS THEN NULL ; END;");
 		return sb.toString();
 	}
-
 }

@@ -19,12 +19,44 @@ public class H2Dialect extends Dialect{
 
 	@Override
 	public String getLimitString(String query, int offset, int limit) {
-		return "select * from ("+query+") queryView LIMIT "+offset+","+limit;
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM (");
+		sb.append(query);
+		sb.append(") queryView LIMIT ");
+		sb.append(offset+","+limit);
+		return sb.toString();
 	}
 
 	@Override
 	public String getLimitString(String query, int offset, int limit, String key) {
-		return getLimitString(query, offset, limit);
+		StringBuffer sb = new StringBuffer();
+		sb.append("SELECT * FROM (");
+		sb.append(query);
+		sb.append(") queryView ORDER BY ");
+		sb.append(key);
+		sb.append(" LIMIT ");
+		sb.append(offset+","+limit);
+		return sb.toString();
+	}
+	
+	@Override
+	public String getLimitString(String query, int offset, int limit,
+			String key, String keyType) {
+		if("整型".equals(keyType)){
+			StringBuffer sb = new StringBuffer();
+			sb.append("SELECT * FROM (");
+			sb.append(query);
+			sb.append(") queryView WHERE ");
+			sb.append(key);
+			sb.append(">=");
+			sb.append(offset * limit);
+			sb.append(" ORDER BY ");
+			sb.append(key);
+			sb.append(" LIMIT ");
+			sb.append(limit);
+			return sb.toString();
+		}
+		return getLimitString(query, offset, limit, key);
 	}
 
 	@Override
@@ -54,4 +86,6 @@ public class H2Dialect extends Dialect{
 		sb.append(tableName);
 		return sb.toString();
 	}
+
+
 }

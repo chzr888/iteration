@@ -1,23 +1,20 @@
 package com.chenzr.iteration.dialect;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.chenzr.iteration.utils.SqlUtil;
+import com.chenzr.iteration.utils.JdbcHelper;
 
 
-public abstract class Dialect {
+public abstract class Dialect extends JdbcHelper {
 	
 	private static final int DATABASE_NAME_CODE_H2 = 1;
 	private static final int DATABASE_NAME_CODE_MYSQL = 2;
 	private static final int DATABASE_NAME_CODE_ORACLE = 3;
 	private static final int DATABASE_NAME_CODE_SQLSERVER = 4;
 	private static Map<String, Integer> DATABASE_NAME_CODE_MAP = new HashMap<String, Integer>();
-	
-	protected SqlUtil util = new SqlUtil();
-	
+		
 	static{
 		DATABASE_NAME_CODE_MAP.put("H2", 1);
 		DATABASE_NAME_CODE_MAP.put("MYSQL", 2);
@@ -30,22 +27,33 @@ public abstract class Dialect {
 	
 	/**
 	 * 分页
-	 * @param query
-	 * @param offset
-	 * @param limit
+	 * @param query 查询SQL
+	 * @param offset 开始行号
+	 * @param limit 查询返回量
 	 * @return
 	 */
 	public abstract String getLimitString(String query, int offset, int limit);
 	
 	/**
 	 * 分页
-	 * @param query
-	 * @param offset
-	 * @param limit
+	 * @param query  查询SQL
+	 * @param offset 开始行号
+	 * @param limit 查询返回量
 	 * @return
 	 */
 	public abstract String getLimitString(String query, int offset, int limit,String key);
 	
+	/**
+	 * 分页
+	 * @param query 查询SQL
+	 * @param offset 开始行号
+	 * @param limit 查询返回量
+	 * @param key 关键字段
+	 * @param keyType 关键字段类型
+	 * @return
+	 */
+	public abstract String getLimitString(String query, int offset, int limit,String key,String keyType) ;
+
 	
 	/**
 	 * 返回最大行数
@@ -56,7 +64,7 @@ public abstract class Dialect {
 		int num = 0;
 		try {
 			String sql = "SELECT COUNT(*) FROM ("+query+") www";
-			num = util.getIntBySql(conn, sql);
+			num = getIntBySql(conn, sql);
 		} catch (Exception e) {
 			throw e;
 		}
@@ -113,7 +121,7 @@ public abstract class Dialect {
 		String dataBaseName="";
 		try {
 			dataBaseName = conn.getMetaData().getDatabaseProductName();
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		int code = DATABASE_NAME_CODE_MAP.get(dataBaseName.toUpperCase());
@@ -147,5 +155,6 @@ public abstract class Dialect {
 	 * @return
 	 */
 	public abstract String getDropTableSql(String tableName);
-
+	
+	
 }

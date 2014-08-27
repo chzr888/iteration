@@ -20,14 +20,14 @@ import com.chenzr.iteration.dialect.Dialect;
 import com.chenzr.iteration.impl.IterationContextImpl;
 import com.chenzr.iteration.impl.IterationEngineImpl;
 import com.chenzr.iteration.impl.UnitOperationImpl;
-import com.chenzr.iteration.utils.SqlUtil;
+import com.chenzr.iteration.utils.JdbcHelper;
 import com.greenpineyu.fel.Expression;
 
 
 public class StepOperation {
 
 	private Logger logger = LoggerFactory.getLogger(StepOperation.class);
-	private SqlUtil util = new SqlUtil();
+	private JdbcHelper util = new JdbcHelper();
 	// 每页大小
 	private int chunkSize = 10000;
 
