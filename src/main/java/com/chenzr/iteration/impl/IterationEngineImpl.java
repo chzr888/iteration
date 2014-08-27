@@ -174,6 +174,4 @@ public class IterationEngineImpl extends FelEngineImpl implements IterationEngin
 		}
 		return ie;
 	}
-
-
 }
