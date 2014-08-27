@@ -36,4 +36,25 @@ public class SQLServerDialect extends Dialect {
 		pagingSelect.append((offset+limit));
 		return pagingSelect.toString();
 	}
+
+	@Override
+	public String getDecimalSize(String typeName, int p, int s) {
+		if(p > 38){
+			p = 38;
+		}
+		if("浮点型".equals(typeName)){
+			return typeNames.get(typeName)+"("+p+","+s+")";
+		}
+		return typeNames.get(typeName);
+	}
+
+	@Override
+	public String getDropTableSql(String tableName) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("IF EXISTS ( SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '");
+		sb.append(tableName);
+		sb.append("' ) DROP TABLE ");
+		sb.append(tableName);
+		return sb.toString();
+	}
 }

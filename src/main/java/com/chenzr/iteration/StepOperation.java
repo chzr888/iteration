@@ -570,7 +570,8 @@ public class StepOperation {
 			Dialect dialect = Dialect.getInstance(memConn);
 			StringBuffer keyStr = new StringBuffer();
 			String key = "";
-			util.upDateBySql("DROP TABLE IF EXISTS " + tableName, memConn);
+			util.upDateBySql(dialect.getDropTableSql(tableName), memConn);
+			//util.upDateBySql("DROP TABLE IF EXISTS " + tableName, memConn);
 			StringBuffer sb = new StringBuffer();
 			for (int i = 0; i < fieldsList.size(); i++) {
 				TableField field = fieldsList.get(i);
@@ -579,14 +580,15 @@ public class StepOperation {
 				}
 				sb.append(field.getFieldName());
 				String dataType = field.getDataType();
-				String JdbcDataType = dialect.getColumnType(dataType);
+				//String JdbcDataType = dialect.getColumnType(dataType);
 				sb.append(" ");
-				sb.append(JdbcDataType);
+				//sb.append(JdbcDataType);
 				// 判断DecimalSize
 				int decimalSize = field.getDecimalSize();
-				if ("金额".equals(dataType) || "浮点型".equals(dataType)) {
-					sb.append("(38," + decimalSize + ")");
-				}
+//				if ("金额".equals(dataType) || "浮点型".equals(dataType)) {
+//					sb.append("(38," + decimalSize + ")");
+//				}
+				sb.append(dialect.getDecimalSize(dataType, 38, decimalSize));
 				if (field.isKey()) {
 					if (keyStr.length() > 0) {
 						keyStr.append(",");
@@ -598,6 +600,7 @@ public class StepOperation {
 			String sqlString = "CREATE TABLE " + tableName + " " + "( "
 					+ sb.toString() + ",PRIMARY KEY (" + keyStr.toString()
 					+ "))";
+			//System.out.println(sqlString);
 			util.upDateBySql(sqlString, memConn);
 			String indexSql = "CREATE INDEX "+tableName+"_index"+key+" ON "+tableName+" ("+keyStr.toString()+")";
 			util.upDateBySql(indexSql, memConn);

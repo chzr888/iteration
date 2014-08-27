@@ -32,4 +32,33 @@ public class OracleDialect extends Dialect{
 		return getLimitString(query, offset, limit);
 	}
 
+	@Override
+	public String getDecimalSize(String typeName, int p, int s) {
+		if("整型".equals(typeName)){
+			if(p > 11){
+				p = 11;
+			}
+			return typeNames.get(typeName)+"("+p+")";
+		}
+		if(p > 38){
+			p = 38;
+		}
+		if("金额".equals(typeName)){
+			return typeNames.get(typeName)+"("+p+","+s+")";
+		}
+		if("浮点型".equals(typeName)){
+			return typeNames.get(typeName)+"("+p+","+s+")";
+		}
+		return typeNames.get(typeName);
+	}
+
+	@Override
+	public String getDropTableSql(String tableName) {
+		StringBuffer sb = new StringBuffer();
+		sb.append("BEGIN EXECUTE IMMEDIATE 'DROP TABLE ");
+		sb.append(tableName);
+		sb.append("' ; EXCEPTION WHEN OTHERS THEN NULL ; END;");
+		return sb.toString();
+	}
+
 }

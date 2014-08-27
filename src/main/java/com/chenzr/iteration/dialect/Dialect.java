@@ -131,5 +131,21 @@ public abstract class Dialect {
 		}
 		return null;
 	}
+	
+	/**
+	 * 返回类型
+	 * @param typeName 类型名称
+	 * @param p （精度） 指定小数点左边和右边可以存储的十进制数字的最大个数。精度必须是从 1 到最大精度之间的值。最大精度为 38。
+	 * @param s （小数位数）指定小数点右边可以存储的十进制数字的最大个数。小数位数必须是从 0 到 p 之间的值。默认小数位数是 0，因而 0 <= s <= p。最大存储大小基于精度而变化。
+	 * @return
+	 */
+	public abstract String getDecimalSize(String typeName,int p,int s);
+	
+	/**
+	 * 组装删除表语句
+	 * @param tableName 表名
+	 * @return
+	 */
+	public abstract String getDropTableSql(String tableName);
 
 }
