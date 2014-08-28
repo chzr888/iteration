@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.chenzr.iteration.impl.IterationContextImpl;
 import com.chenzr.iteration.impl.IterationEngineImpl;
+import com.greenpineyu.fel.Expression;
 import com.greenpineyu.fel.FelEngine;
 import com.greenpineyu.fel.FelEngineImpl;
 import com.greenpineyu.fel.common.NumberUtil;
@@ -195,15 +196,44 @@ public class Tests {
 //				System.out.println(value);
 //				System.out.println("耗时： "+(System.currentTimeMillis() - startTime));
 //			}
-			Map<String, Object> map = new HashMap<String,Object>();
-			IterationContext ctx = new IterationContextImpl();
+//			Map<String, Object> map = new HashMap<String,Object>();
+//			IterationContext ctx = new IterationContextImpl();
+//			ctx.clear();
+//			map.put("人员", "小明");
+//			map.put("工号", 007);
+//			ctx.set(map);
+//			map.put("人员", "小明a");
+//			Object value = ctx.get("人员");
+//			System.out.println(value);
+			IterationEngineImpl engine = new IterationEngineImpl();
+			FelEngine fel = FelEngine.instance;
+			MapContext ctx = new MapContext();
 			ctx.clear();
-			map.put("人员", "小明");
-			map.put("工号", 007);
-			ctx.set(map);
-			map.put("人员", "小明a");
-			Object value = ctx.get("人员");
-			System.out.println(value);
+			ctx.set("单价", 5000);
+			ctx.set("数量", 12);
+			ctx.set("运费", 7500);
+			ctx.set("运费1", 100);
+			ctx.set("运费2", 300);
+			ctx.set("运费3", 400);
+			ctx.set("运费4", 500);
+			ctx.set("运费5", 50);
+			Expression exp = fel.compile("单价*数量+运费-运费1+运费2/运费3+运费4-运费5",ctx);
+			long time = System.currentTimeMillis();
+			for (int i = 0; i < (100000*100*255); i++) {
+				ctx.clear();
+				ctx.set("单价", 5000);
+				ctx.set("数量", 12);
+				ctx.set("运费", 7500);
+				ctx.set("运费1", 100);
+				ctx.set("运费2", 300);
+				ctx.set("运费3", 400);
+				ctx.set("运费4", 500);
+				ctx.set("运费5", 50);
+//				Object result = exp.eval(ctx);
+				engine.eval("单价*数量+运费-运费1+运费2/运费3+运费4-运费5", ctx);
+			}
+			System.out.println(System.currentTimeMillis() - time);
+			//System.out.println(result);
 			
 		} catch (Exception e) {
 			e.printStackTrace();

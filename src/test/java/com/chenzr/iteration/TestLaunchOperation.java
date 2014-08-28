@@ -140,7 +140,7 @@ public class TestLaunchOperation {
 			List<TableField> fieldsList = launchOperation.getTableFields(stepName, conn);
 			tableName = launchOperation.getTableName(stepName, conn);
 			StepOperation operation = new StepOperation();
-			operation.createMemoryTable(tableName, fieldsList, bizConn);
+			//operation.createMemoryTable(tableName, fieldsList, bizConn);
 			
 			String sqlStr = "INSERT INTO "+tableName+" (id,cv1,cv2,cv3,cv4,cv5) VALUES (?,?,?,?,?,?)";
 			bizConn.setAutoCommit(false);
@@ -234,9 +234,9 @@ public class TestLaunchOperation {
 	private Connection getBizConn() {
 		Connection conn = null;
 		try {
-			String url = "jdbc:mysql://127.0.0.1:3306/test";
+			String url = "jdbc:mysql://192.168.2.3:3306/test";
 			String username = "root";
-			String password = "root";
+			String password = "victop";
 			Class.forName("com.mysql.jdbc.Driver");
 			conn = DriverManager.getConnection(url, username, password);
 		} catch (Exception e) {
@@ -259,14 +259,38 @@ public class TestLaunchOperation {
 		return conn;
 	}
 	
+	private Connection getOracleConn() {
+		Connection conn = null;
+		try {
+			String url = "jdbc:oracle:thin:km151saas1/km151saas1@192.168.25.242:1521:ORCL";
+			 Class.forName("oracle.jdbc.driver.OracleDriver");  
+			conn = DriverManager.getConnection(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return conn;
+	}
+	
+	private Connection getSQLServerConn() {
+		Connection conn = null;
+		try {
+			String url = "jdbc:sqlserver://192.168.25.134;DatabaseName=test;user=sa;password=Victop.1234";
+			Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+			conn = DriverManager.getConnection(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return conn;
+	}
+	
 	public static void main(String[] args) {
 		try {
 			TestLaunchOperation test = new TestLaunchOperation();
 			test.beforeClass();
 			test.init();
-		//	test.initData();
+			test.initData();
 			long stime = System.currentTimeMillis();
-			test.launch();
+			//test.launch();
 			System.out.println("运算耗时 :"+(System.currentTimeMillis() - stime));
 		} catch (Exception e) {
 			e.printStackTrace();
